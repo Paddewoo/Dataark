@@ -1,0 +1,196 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.all;
+use work.cpu_pkg.all;
+
+
+entity decoder is
+    port(
+        OPCODE 	: in  std_logic_vector(3 downto 0);
+        Z 		: in  std_logic;
+        AddrSrc : out std_logic_vector(1 downto 0);
+        ALUOp 	: out std_logic_vector(2 downto 0);
+        ALUSrc 	: out std_logic;
+        OutEna 	: out std_logic;
+        RegEna 	: out std_logic;
+        StackOp : out std_logic_vector(1 downto 0);
+        IntDone : out std_logic
+    );
+end decoder;
+
+architecture Behavioral of decoder is
+
+    
+begin
+
+
+decode: process(OPCODE, Z)
+
+begin
+	
+		AddrSrc <= PC_P_ONE;
+		ALUOp   <= ZERO;
+		ALUSrc  <= '0';
+		OutEna  <= '0';
+		RegEna  <= '0';
+		StackOp <= HOLD;	
+	
+	case OPCODE is 
+	
+		when OP_CALL =>			-- <============================================
+		
+			AddrSrc <= DATA;
+			ALUOp   <= ZERO;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '0';
+			StackOp <= PUSH;
+		
+		when OP_RET  => 		-- <============================================
+					
+					
+			AddrSrc <= TOS;
+			ALUOp   <= ZERO;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '0';
+			StackOp <= POP;		
+
+		when OP_BZ   =>			-- <============================================
+					
+			ALUOp   <= B_out;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '0';
+			StackOp <= HOLD;
+			
+			if Z = '0' then
+			
+				AddrSrc <= PC_P_ONE;
+			
+			else 
+			
+				AddrSrc <= DATA;
+			
+			end if;
+
+		when OP_B    =>			-- <============================================
+		
+			AddrSrc <= DATA;
+			ALUOp   <= ZERO;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '0';
+			StackOp <= HOLD;	
+
+		when OP_ADD  =>			-- <============================================
+		
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= A_p_B;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '1';
+			StackOp <= HOLD;	
+
+		when OP_SUB  =>			-- <============================================
+
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= B_m_A;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '1';
+			StackOp <= HOLD;
+			
+				
+		when OP_AND  =>			-- <============================================
+			
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= A_and_B;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '1';
+			StackOp <= HOLD;
+		
+		when OP_OR   =>			-- <============================================
+
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= A_or_B;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '1';
+			StackOp <= HOLD;
+			
+		when OP_XOR  =>			-- <============================================
+
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= A_xor_B;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '1';
+			StackOp <= HOLD;
+
+		when OP_LD   =>			-- <============================================
+		
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= A_out;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '1';
+			StackOp <= HOLD;
+
+		when OP_OUT  =>			-- <============================================
+		
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= B_out;
+			ALUSrc  <= '0';
+			OutEna  <= '1';
+			RegEna  <= '0';
+			StackOp <= HOLD;
+
+		when OP_IN   =>			-- <============================================
+		
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= B_out;
+			ALUSrc  <= '1';
+			OutEna  <= '0';
+			RegEna  <= '1';
+			StackOp <= HOLD;
+
+		when OP_NOP  =>			-- <============================================
+					
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= ZERO;
+			ALUSrc  <= '0';
+			OutEna  <= '0';
+			RegEna  <= '0';
+			StackOp <= HOLD;
+		
+		when OP_MYST  =>			-- <============================================
+					
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= A_out;
+			ALUSrc  <= '0';
+			OutEna  <= '1';
+			RegEna  <= '0';
+			StackOp <= HOLD;
+	
+		when others =>
+			
+			AddrSrc <= PC_P_ONE;
+			ALUOp   <= ZERO;
+			ALUSrc  <= '0';
+			RegEna  <= '0';
+			OutEna  <= '0';
+			StackOp <= HOLD;
+			
+		when SRET => 
+		
+		    AddrSrc <= PC_P_ONE;
+		
+	end case;
+end process;
+
+end architecture Behavioral;
