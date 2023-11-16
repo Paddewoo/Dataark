@@ -17,6 +17,7 @@ entity decoder is
         OutEna 	: out std_logic;
         RegEna 	: out std_logic;
         StackOp : out std_logic_vector(1 downto 0);
+        SRET    : out std_logic_vector(3 downto 0);
         IntDone : out std_logic
     );
 end decoder;
@@ -36,7 +37,8 @@ begin
 		ALUSrc  <= '0';
 		OutEna  <= '0';
 		RegEna  <= '0';
-		StackOp <= HOLD;	
+		StackOp <= HOLD;
+		IntDone <= '0';
 	
 	case OPCODE is 
 	
@@ -48,6 +50,7 @@ begin
 			OutEna  <= '0';
 			RegEna  <= '0';
 			StackOp <= PUSH;
+			IntDone <= '0';
 		
 		when OP_RET  => 		-- <============================================
 					
@@ -57,7 +60,8 @@ begin
 			ALUSrc  <= '0';
 			OutEna  <= '0';
 			RegEna  <= '0';
-			StackOp <= POP;		
+			StackOp <= POP;	
+			IntDone <= '0';	
 
 		when OP_BZ   =>			-- <============================================
 					
@@ -66,6 +70,8 @@ begin
 			OutEna  <= '0';
 			RegEna  <= '0';
 			StackOp <= HOLD;
+			IntDone <= '0';
+			
 			
 			if Z = '0' then
 			
@@ -84,7 +90,8 @@ begin
 			ALUSrc  <= '0';
 			OutEna  <= '0';
 			RegEna  <= '0';
-			StackOp <= HOLD;	
+			StackOp <= HOLD;
+			IntDone <= '0';	
 
 		when OP_ADD  =>			-- <============================================
 		
@@ -94,6 +101,7 @@ begin
 			OutEna  <= '0';
 			RegEna  <= '1';
 			StackOp <= HOLD;	
+			IntDone <= '0';
 
 		when OP_SUB  =>			-- <============================================
 
@@ -103,6 +111,7 @@ begin
 			OutEna  <= '0';
 			RegEna  <= '1';
 			StackOp <= HOLD;
+			IntDone <= '0';
 			
 				
 		when OP_AND  =>			-- <============================================
@@ -113,6 +122,7 @@ begin
 			OutEna  <= '0';
 			RegEna  <= '1';
 			StackOp <= HOLD;
+			IntDone <= '0';
 		
 		when OP_OR   =>			-- <============================================
 
@@ -122,6 +132,7 @@ begin
 			OutEna  <= '0';
 			RegEna  <= '1';
 			StackOp <= HOLD;
+			IntDone <= '0';
 			
 		when OP_XOR  =>			-- <============================================
 
@@ -131,6 +142,7 @@ begin
 			OutEna  <= '0';
 			RegEna  <= '1';
 			StackOp <= HOLD;
+			IntDone <= '0';
 
 		when OP_LD   =>			-- <============================================
 		
@@ -140,6 +152,7 @@ begin
 			OutEna  <= '0';
 			RegEna  <= '1';
 			StackOp <= HOLD;
+			IntDone <= '0';
 
 		when OP_OUT  =>			-- <============================================
 		
@@ -149,6 +162,7 @@ begin
 			OutEna  <= '1';
 			RegEna  <= '0';
 			StackOp <= HOLD;
+			IntDone <= '0';
 
 		when OP_IN   =>			-- <============================================
 		
@@ -158,6 +172,7 @@ begin
 			OutEna  <= '0';
 			RegEna  <= '1';
 			StackOp <= HOLD;
+			IntDone <= '0';
 
 		when OP_NOP  =>			-- <============================================
 					
@@ -167,6 +182,7 @@ begin
 			OutEna  <= '0';
 			RegEna  <= '0';
 			StackOp <= HOLD;
+			IntDone <= '0';
 		
 		when OP_MYST  =>			-- <============================================
 					
@@ -176,6 +192,17 @@ begin
 			OutEna  <= '1';
 			RegEna  <= '0';
 			StackOp <= HOLD;
+			IntDone <= '0';
+			
+        when OP_SRET => 
+                    
+            AddrSrc <= PC_P_ONE;
+            ALUOp   <= ZERO;
+            ALUSrc  <= '0';
+            RegEna  <= '0';
+            OutEna  <= '0';
+            StackOp <= POP;
+            IntDone <= '1';
 	
 		when others =>
 			
@@ -185,10 +212,8 @@ begin
 			RegEna  <= '0';
 			OutEna  <= '0';
 			StackOp <= HOLD;
-			
-		when SRET => 
-		
-		    AddrSrc <= PC_P_ONE;
+			IntDone <= '0';
+		    
 		
 	end case;
 end process;
