@@ -1,0 +1,128 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 11/07/2023 03:25:20 PM
+-- Design Name: 
+-- Module Name: TB_work_reg_block - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity TB_work_reg_block is
+--  Port ( );
+end TB_work_reg_block;
+
+architecture Behavioral of TB_work_reg_block is
+signal sim_done 	: std_logic := '0'; 		-- Signal fÃ¶r att avsluta simuleringen
+	
+	signal clk 			: std_logic := '0'; 		-- Klocksignal initieras till 0, det Ã¤r viktigt! Se rad 47!
+	signal save_wreg : std_logic := '0';
+	signal restore_wreg : std_logic := '0';
+	signal ena  		: std_logic := '0';
+	signal rst		: std_logic := '0';
+	signal D 			: std_logic_vector(7 downto 0); 
+	signal Q 	 		: std_logic_vector(7 downto 0); 
+	
+	constant clk_period : time := 10 ns;			-- konstant signal fÃ¶r en klockperiod
+
+	component work_reg_block is	-- Deklarerar en komponent
+		port(
+			clk   : in  std_logic;
+			ena   : in  std_logic;
+			rst : in  std_logic;
+			D 	  : in  std_logic_vector(7 downto 0);
+			Q 	  : out std_logic_vector(7 downto 0);
+			save_wreg : in std_logic;
+            restore_wreg : in std_logic
+		);
+	end component;
+
+begin
+DUT_work_reg_block: work_reg_block	-- Instantierar en komponenent samt kopplar 
+	port map(
+		clk   => clk,
+		ena   => ena,
+		rst => rst,
+		D => D,
+		save_wreg => save_wreg,
+		restore_wreg => restore_wreg,
+		Q  => Q 	 	
+	);           
+	
+	clk_gen: process		-- Process fÃ¶r att generera en klocksignal
+	begin
+			
+		if sim_done = '0' then			 	-- Kolla pÃ¥ rad 80. DÃ¤r sÃ¤tts sim_done till 1. Sedan skrivs en kommentar ut i
+			wait for clk_period / 2;	 	-- terminalfÃ¶nstert, efter det kommer kommandot wait. DÃ¤r slutar simuleringen!		
+			clk <= not clk;			-- Om klocksignalen inte hade varit initierad hade det uppstÃ¥t problem hÃ¤r
+		else
+			wait;
+		end if;
+	
+	end process;
+
+
+	DUT_stimuli: process	-- Process som skapar simuleringssignaler. 
+	begin
+	
+	wait for clk_period;	
+	
+	rst <= '1';			
+	ena	  <= '1';
+	
+	D <= "10100101";
+	
+	wait for 2*clk_period;
+		
+	D <= "10111101";
+	
+	wait for 2*clk_period;
+		
+	ena	  <= '0';
+	D <= "10100101";
+	
+	wait for 2*clk_period;
+		
+	rst <= '0';
+	
+	wait for 2*clk_period;
+	
+	wait for 2*clk_period;
+	D <= "00110000";
+	save_wreg <= '1';
+	
+	wait for 2*clk_period;
+	restore_wreg <= '1';
+	save_wreg <= '1';
+		
+    wait for 2*clk_period;
+		
+	sim_done <= '1';
+	report "Simulation done! :)" severity note;
+	wait;
+	end process;
+
+end Behavioral;
