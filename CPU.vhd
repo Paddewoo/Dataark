@@ -64,6 +64,7 @@ architecture Structural of CPU is
         output 	: out std_logic_vector(7 downto 0)
     );
 	end component;
+	
 	--detta ska tas bort sen
 	component work_reg is
 	port(
@@ -74,6 +75,7 @@ architecture Structural of CPU is
 		Q 	  : out std_logic_vector(7 downto 0)
 	);
 	end component;
+	
 	--deklaration av work_reg_block
 	component work_reg_block is
 	port(
@@ -95,7 +97,8 @@ architecture Structural of CPU is
         ALUSrc 	: out std_logic;
         OutEna 	: out std_logic;
         RegEna 	: out std_logic;
-        StackOp : out std_logic_vector(1 downto 0)
+        StackOp : out std_logic_vector(1 downto 0);
+        SRET    : out std_logic_vector(3 downto 0)
     );
 	end component;
 	
@@ -256,7 +259,8 @@ begin
         ALUSrc 	=> s_ALUSrc,
         OutEna 	=> s_OutEna,
         RegEna 	=> s_RegEna,
-        StackOp => s_StackOp
+        StackOp => s_StackOp,
+        SRET    => s_SRET
     );
 	
 	theStack: stack 
