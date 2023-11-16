@@ -1,0 +1,80 @@
+-- Dena filen innehÃ¥ller definitioner fÃ¶r signalerna StackOp, AddrSrc och OPCODE.
+-- AnvÃ¤ndning av konstanterna gÃ¶r koden lÃ¤ttare att lÃ¤sa och felsÃ¶ka.
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+package CPU_pkg is
+
+	procedure vector_to_string(	signal vector  : in  std_logic_vector; 
+								signal str : out string);
+
+    -- Stackkommando
+    constant POP          : std_logic_vector(1 downto 0) := "10";
+    constant PUSH         : std_logic_vector(1 downto 0) := "01";
+    constant HOLD         : std_logic_vector(1 downto 0) := "00";
+    
+     -- Adressalternativ
+    constant PC_P_ONE	: std_logic_vector(1 downto 0) := "00";
+    constant TOS     	: std_logic_vector(1 downto 0) := "01";
+    constant DATA    	: std_logic_vector(1 downto 0) := "10";
+    
+     -- Instruktioner
+    constant OP_CALL             : std_logic_vector(3 downto 0) := "0000";
+    constant OP_RET              : std_logic_vector(3 downto 0) := "0001";
+    constant OP_BZ               : std_logic_vector(3 downto 0) := "0010";
+    constant OP_B                : std_logic_vector(3 downto 0) := "0011";
+    constant OP_ADD              : std_logic_vector(3 downto 0) := "0100";
+    constant OP_SUB              : std_logic_vector(3 downto 0) := "0101";
+    constant OP_AND              : std_logic_vector(3 downto 0) := "0110";
+	constant OP_OR               : std_logic_vector(3 downto 0) := "0111";
+	constant OP_XOR              : std_logic_vector(3 downto 0) := "1000";
+    constant OP_LD               : std_logic_vector(3 downto 0) := "1001";
+    constant OP_OUT              : std_logic_vector(3 downto 0) := "1010";
+    constant OP_IN               : std_logic_vector(3 downto 0) := "1011";
+	constant OP_NOP				 : std_logic_vector(3 downto 0) := "1100";
+	constant OP_MYST             : std_logic_vector(3 downto 0) := "1101";
+	constant OP_SRET             : std_logic_vector(3 downto 0) := "1110";  -- tillagda SRET signalen om avbrott genomförts
+	                                                                
+	
+	-- ALU operation
+	constant A_out		       	: std_logic_vector(2 downto 0) := "000";
+	constant B_out		   	   	: std_logic_vector(2 downto 0) := "001";
+	constant A_p_B       	  	: std_logic_vector(2 downto 0) := "010";
+	constant B_m_A         		: std_logic_vector(2 downto 0) := "011";
+	constant A_and_B      		: std_logic_vector(2 downto 0) := "100";
+	constant A_or_B        		: std_logic_vector(2 downto 0) := "101";
+	constant A_xor_B       		: std_logic_vector(2 downto 0) := "110";
+	constant ZERO          		: std_logic_vector(2 downto 0) := "111";
+    
+end package;
+
+package body cpu_pkg is
+
+	procedure vector_to_string (signal vector 	: in  std_logic_vector; 
+								signal str 		: out string) is 
+		
+		variable the_str : string(vector'length downto 1);
+		
+	begin
+	
+		for J in the_str'range loop
+		
+			if vector(J-1) = '1' then
+				
+				the_str(J) := '1'; 
+				
+			else 
+
+				the_str(J) := '0';
+				
+			end if;
+		
+		end loop;
+	
+	
+		str <= the_str;
+		
+	end vector_to_string;
+end cpu_pkg;
