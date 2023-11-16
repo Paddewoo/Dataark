@@ -64,7 +64,7 @@ architecture Structural of CPU is
         output 	: out std_logic_vector(7 downto 0)
     );
 	end component;
-	
+	--detta ska tas bort sen
 	component work_reg is
 	port(
 		clk   : in  std_logic;
@@ -73,6 +73,17 @@ architecture Structural of CPU is
 		D 	  : in  std_logic_vector(7 downto 0);
 		Q 	  : out std_logic_vector(7 downto 0)
 	);
+	end component;
+	--deklaration av work_reg_block
+	component work_reg_block is
+	port(
+	   save_wreg : in STD_LOGIC;
+	   D : in STD_LOGIC_VECTOR(7 downto 0);
+       restore_wreg : in STD_LOGIC;
+       ena : in STD_LOGIC;
+       clk : in STD_LOGIC;
+       rst : in STD_LOGIC;
+       Q : out STD_LOGIC_VECTOR (7 downto 0));
 	end component;
 	
 	component decoder is
@@ -109,7 +120,7 @@ architecture Structural of CPU is
     signal s_OutEna 	: std_logic;
     signal s_RegEna 	: std_logic;
     signal s_StackOp  	: std_logic_vector(1 downto 0);
-    --signal s_SRET       : std_logic_vector(3 downto 0);
+    signal s_SRET       : std_logic_vector(3 downto 0);
 	
 	signal s_next_instr : std_logic_vector(5 downto 0);
 	signal s_pc_p_one   : std_logic_vector(5 downto 0);
@@ -123,6 +134,11 @@ architecture Structural of CPU is
 	signal s_R0Q		: std_logic_vector(7 downto 0);
 	signal s_R1Q		: std_logic_vector(7 downto 0);
 	signal s_pc_debug	: std_logic_vector(5 downto 0);
+	signal restore_wreg0 : std_logic;
+	signal restore_wreg1 : std_logic;
+    signal save_wreg0 : std_logic;
+    signal save_wreg1 : std_logic;
+
 
 begin
 	
@@ -189,25 +205,48 @@ begin
         Z 	  	=> s_Z,
         output 	=> s_output
     );
-
-	R0: work_reg 
-	port map(
-		clk   => clk,
-		ena   => s_ena0,
-		n_rst => n_rst,
-		D 	  => s_output,
-		Q 	  => s_R0Q
-	);
+    
+--remove both these shit later
+	--R0: work_reg 
+	--port map(
+		--clk   => clk,
+		--ena   => s_ena0,
+		--n_rst => n_rst,
+		--D 	  => s_output,
+		--Q 	  => s_R0Q
+	--);
 	
-	R1: work_reg 
-	port map(
-		clk   => clk,
-		ena   => s_ena1,
-		n_rst => n_rst,
-		D 	  => s_output,
-		Q 	  => s_R1Q
-	);
+	--R1: work_reg 
+--	port map(
+	--	clk   => clk,
+	--	ena   => s_ena1,
+	--	n_rst => n_rst,
+	--	D 	  => s_output,
+	--	Q 	  => s_R1Q
+	--);
 	
+    R0: work_reg_block
+    port map(
+        save_wreg => save_wreg0,
+        D => s_output,
+        restore_wreg => restore_wreg0,
+        ena => s_ena0,
+        clk => clk,
+        rst => n_rst,
+        Q => s_R0Q
+    );
+    
+    R1: work_reg_block
+    port map(
+        save_wreg => save_wreg1,
+        D => s_output,
+        restore_wreg => restore_wreg1,
+        ena => s_ena1,
+        clk => clk,
+        rst => n_rst,
+        Q => s_R1Q 
+    );      
+           
 	DEC: decoder 
     port map(
         OPCODE 	=> s_opcode,
