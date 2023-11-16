@@ -1,0 +1,82 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 11/07/2023 01:07:48 PM
+-- Design Name: 
+-- Module Name: work_reg_block - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity work_reg_block is
+    Port ( save_wreg : in STD_LOGIC;
+           D : in STD_LOGIC_VECTOR(7 downto 0);
+           restore_wreg : in STD_LOGIC;
+           ena : in STD_LOGIC;
+           clk : in STD_LOGIC;
+           rst : in STD_LOGIC;
+           Q : out STD_LOGIC_VECTOR (7 downto 0));
+end work_reg_block;
+
+
+architecture Behavioral of work_reg_block is
+
+signal muxOut : STD_LOGIC_VECTOR ( 7 downto 0 );
+signal wreg_Out: STD_LOGIC_VECTOR ( 7 downto 0 );
+signal restore_or_ena : STD_LOGIC;
+signal mainOut : STD_LOGIC_VECTOR ( 7 downto 0 );
+
+begin
+    restore_or_ena <= restore_wreg or ena;
+    Q <= mainOut;
+
+    mux: entity work.MUX2x8
+    port map(
+        input0 => D,
+        input1 => wreg_out,
+        sel => restore_wreg,
+        output => muxOut
+    );
+    
+    registerQ: entity work.work_reg
+    port map(
+        clk  => clk,
+        ena => restore_or_ena,
+        n_rst => rst,
+        D => muxOut,
+        Q => mainOut
+    );
+    
+    registerSave: entity work.work_reg
+    port map(
+        clk  => clk,
+        ena => save_wreg,
+        n_rst => rst,
+        D => mainOut,
+        Q => wreg_out
+    );
+
+end Behavioral;
