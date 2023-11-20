@@ -50,14 +50,14 @@ type state_type is (Idle, Save, Restore);
 signal current_state, next_state : state_type;
 
 begin
---process(clk, rst)
-
---if(rst = '1') then 
---    current_state <= Idle;
---elsif(rising_edge(clk)) then 
---    current_state <= next_state;
---end if;
---end process;
+process(clk, rst)
+begin
+if(rst = '1') then 
+    current_state <= Idle;
+elsif(rising_edge(clk)) then 
+    current_state <= next_state;
+end if;
+end process;
     
 process(current_state, int0, int_done)
 begin
