@@ -132,7 +132,7 @@ architecture Structural of CPU is
        int_addr : out std_logic_vector(5 downto 0);
        int_mux : out std_logic;
        save_wreg : out std_logic;
-       restore_wreg : out std_logic)
+       restore_wreg : out std_logic 
     );
     end component;
 	
@@ -171,6 +171,8 @@ architecture Structural of CPU is
     signal s_instr : std_logic_vector(5 downto 0);
     signal ret_addr : std_logic_vector (5 downto 0);
     signal int_done : std_logic;
+    signal s_int_done : std_logic;
+    signal restore_wreg : std_logic;
 
 
 begin
@@ -229,13 +231,14 @@ begin
 		sel    	=> s_dest,
 		output  => s_back
 	);
+	
 	MUX4: MUX2x6
-        port map(
-            input0     => s_instr,
-            input1    => s_int_addr,
-            sel        => s_int_mux,
-            output  => s_next_instr
-        );
+    port map(
+        input0     => s_instr,
+        input1    => s_int_addr,
+        sel        => s_int_mux,
+        output  => s_next_instr
+    );
 	
 	theALU: ALU 
     port map(
@@ -300,10 +303,17 @@ begin
         SRET    => s_SRET
     );
     
-    avbrottshanterare: avbrottshanterare
+    avbrott: avbrottshanterare
     port map(
-    
-    
+       int_addr => s_int_addr,
+       int_done => s_int_done,
+       clk      => clk,
+       rst      => n_rst,
+       ret_addr => s_pc_debug,
+       int0     => int_source0,
+       int_mux  => s_int_mux,
+       save_wreg => save_wreg0,
+       restore_wreg => restore_wreg
     );
 	
 	theStack: stack 
