@@ -1,0 +1,138 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 11/21/2023 03:32:28 PM
+-- Design Name: 
+-- Module Name: TB_CPU_2 - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity TB_CPU_2 is
+--  Port ( );
+end TB_CPU_2;
+
+architecture Behavioral of TB_CPU_2 is
+
+component CPU is    -- deklaration
+		port(
+			clk			: in  std_logic; 
+			n_rst 		: in  std_logic;
+			I 			: in  std_logic_vector(12 downto 0);
+			INPUT 		: in  std_logic_vector(7 downto 0);
+			A 			: out std_logic_vector(5 downto 0);
+			OUTPUT 		: out std_logic_vector(7 downto 0);
+			OutEna 		: out std_logic;
+			pc_debug 	: out std_logic_vector(5 downto 0)
+		);
+	end component;
+
+-- signaler
+    signal clk 		: std_logic := '0';
+    signal n_rst 	: std_logic := '0';
+    signal DATA 	: std_logic_vector(7 downto 0);
+    signal DEST 	: std_logic;
+    signal OPCODE 	: std_logic_vector(3 downto 0);
+    signal I 		: std_logic_vector(12 downto 0);
+    signal A		: std_logic_vector(5 downto 0); 
+	signal PC 		: std_logic_vector(5 downto 0);
+    signal INPUT	: std_logic_vector(7 downto 0);
+	signal OUTPUT 	: std_logic_vector(7 downto 0);
+    signal OutEna 	: std_logic;
+    
+    
+    signal message : string(1 to 11) := "      RESET";
+    type opcode_arr is array (1 to 12) of string(1 to 4);
+    constant opcode_str : opcode_arr := ("CALL", " RET", "  BZ", "   B", " ADD", " SUB", " AND", "  LD", " OUT", "  IN", "  OR", " XOR");
+    
+    signal loop_cnt : integer range 0 to 4;
+    signal sim_done : std_logic := '0';
+    constant clk_period : time := 100 ns;
+    
+    --function create_message (opcode_str : string(1 to 4); DEST : std_logic; DATA : std_logic_vector(7 downto 0)) return string(1 to 10);
+    pure function create_message
+        (opcode : string(1 to 4);
+         dest : std_logic;
+         data : integer)
+         return string is
+         variable reg : string(1 to 2);
+         variable data_str1 : string(1 to 1);
+         variable data_str2 : string(1 to 2);
+         variable data_str3, data_str : string(1 to 3);
+    begin
+        if dest = '1' then
+            reg := "R1";
+        elsif dest = '0' then
+            reg := "R0";
+        else 
+            reg := "  ";
+        end if;
+        
+        if data < 0 then
+            data_str := "   ";
+        elsif data < 10 then
+            data_str1 := integer'image(data);
+            data_str := "  " & data_str1;
+        elsif data < 100 then
+            data_str2 := integer'image(data);
+            data_str := " " & data_str2;
+        else
+            data_str3 := integer'image(data);
+            data_str := data_str3;
+        end if;
+        
+        return opcode & " " & reg & " " & data_str;
+        
+    end function;
+        
+        
+begin
+
+    DUT_CPU: CPU
+	port map(
+        clk 	 => clk,
+        n_rst 	 => n_rst,
+        I 		 => I,
+        INPUT 	 => INPUT,
+        A 		 => A,
+        OUTPUT 	 => OUTPUT,
+        OutEna 	 => OutEna,
+        pc_debug => PC
+    );
+	
+	I <= OPCODE & DEST & DATA;
+	
+	clk_gen:process       -- klockprocess
+    begin
+        if sim_done  = '0' then
+            wait for clk_period / 2;
+            clk <= not clk;
+        else
+            wait;
+        end if;
+    end process;
+
+end Behavioral;
