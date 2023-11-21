@@ -33,7 +33,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity avbrottshanterare is
     Port ( 
-           ret_addr : in STD_LOGIC;
+           ret_addr : in STD_LOGIC_VECTOR (5 downto 0);
            int_done : in STD_LOGIC;
            clk : in STD_LOGIC;
            rst : in STD_LOGIC;
@@ -89,17 +89,17 @@ begin
   begin
     case current_state is
         when Idle => 
-            int_addr <= "100111"; -- ret_addr
+            int_addr <= "------"; 
             save_wreg <= '0';
             restore_wreg <= '0';
             int_mux <= '0';
         when Save => 
-            int_addr <= "0001111";
+            int_addr <= "001111";
             save_wreg <= '1';
             restore_wreg <= '0';
             int_mux <= '0';
         when Restore =>
-            int_addr <= "0001111";
+            int_addr <= "100111"; -- ret adress
             save_wreg <= '0';
             restore_wreg <= '1';
             int_mux <= '1';
