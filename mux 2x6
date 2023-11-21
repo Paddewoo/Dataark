@@ -35,7 +35,7 @@ entity MUX2x6 is
     port(
         input0 	: in  std_logic_vector(5 downto 0);
 		input1	: in  std_logic_vector(5 downto 0);
-		sel    	: in  std_logic_vector(1 downto 0);
+		sel    	: in  std_logic;
 		output  : out std_logic_vector(5 downto 0)
 		);
 end MUX2x6;
@@ -45,8 +45,8 @@ architecture Behavioral of MUX2x6 is
 begin
 
 with sel select output <=
-		input0 		when "0",
-		input1 		when "1";
+		input0 		when '0',
+		input1 		when '1';
 
 
 
