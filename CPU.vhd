@@ -12,6 +12,7 @@ entity CPU is
         OutEna 		: out std_logic;
         pc_debug 	: out std_logic_vector(5 downto 0);
 		int_source0	: in  std_logic
+		
     );
 end CPU;
 
@@ -112,6 +113,29 @@ architecture Structural of CPU is
 	);
 	end component;
 	
+	component MUX2x6 is
+    port(
+        input0     : in  std_logic_vector(5 downto 0);
+        input1    : in  std_logic_vector(5 downto 0);
+        sel        : in  std_logic;
+        output  : out std_logic_vector(5 downto 0)
+    );
+    end component;
+        
+    component avbrottshanterare is
+    port(
+       ret_addr : in std_logic_vector(5 downto 0);
+       int_done : in std_logic;
+       clk : in std_logic;
+       rst : in std_logic;
+       int0 : in std_logic;
+       int_addr : out std_logic_vector(5 downto 0);
+       int_mux : out std_logic;
+       save_wreg : out std_logic;
+       restore_wreg : out std_logic)
+    );
+    end component;
+	
 	signal s_dest     	: std_logic;
 	signal s_data     	: std_logic_vector(7 downto 0);
 	signal s_d_addr  	: std_logic_vector(5 downto 0);
@@ -141,6 +165,12 @@ architecture Structural of CPU is
 	signal restore_wreg1 : std_logic;
     signal save_wreg0 : std_logic;
     signal save_wreg1 : std_logic;
+    ----
+    signal s_int_addr : std_logic_vector(5 downto 0);
+    signal s_int_mux : std_logic;
+    signal s_instr : std_logic_vector(5 downto 0);
+    signal ret_addr : std_logic_vector (5 downto 0);
+    signal int_done : std_logic;
 
 
 begin
@@ -181,7 +211,7 @@ begin
 		input1 => s_TOS,
 		input2 => s_d_addr,
 		sel    => s_addrSrc,
-		output => s_next_instr
+		output => s_instr           --s_next_instr
 	);
 	
 	MUX2: MUX2x8
@@ -199,6 +229,13 @@ begin
 		sel    	=> s_dest,
 		output  => s_back
 	);
+	MUX4: MUX2x6
+        port map(
+            input0     => s_instr,
+            input1    => s_int_addr,
+            sel        => s_int_mux,
+            output  => s_next_instr
+        );
 	
 	theALU: ALU 
     port map(
@@ -261,6 +298,12 @@ begin
         RegEna 	=> s_RegEna,
         StackOp => s_StackOp,
         SRET    => s_SRET
+    );
+    
+    avbrottshanterare: avbrottshanterare
+    port map(
+    
+    
     );
 	
 	theStack: stack 
