@@ -35,26 +35,25 @@ entity TB_avbrottshanterare is
 --  Port ( );
 end TB_avbrottshanterare;
 
-architecture Behavioral of TB_avbrottshanterare is
+Architecture Behavioral of TB_avbrottshanterare is
 
-signal sim_done 	: std_logic := '0'; 		-- Signal fÃ¶r att avsluta simuleringen
-	
+    signal sim_done 	: std_logic := '0'; 		-- Signal fÃ¶r att avsluta simuleringen
 	signal clk 			: std_logic := '0'; 		-- Klocksignal initieras till 0, det Ã¤r viktigt! Se rad 47!
 	signal save_wreg : std_logic := '0';
-	signal restore_wreg : std_logic := '0';
-	signal ret_addr  		: std_logic_vector := "000000";
+	signal restore_wreg : std_logic := '1'; --1
+	signal ret_addr : std_logic_vector(5 downto 0) := "000000";
 	signal rst		: std_logic := '0';
 	signal int_done 			: std_logic := '0'; 
 	signal int0 	 		: std_logic := '0'; 
-	signal int_addr :  std_logic_vector := "000000";
-	signal int_mux : std_logic := '0';
+	signal int_addr :  std_logic_vector(5 downto 0)  := "000000";
+	signal int_mux : std_logic := '1'; --1
 	
 	
 	constant clk_period : time := 10 ns;			-- konstant signal fÃ¶r en klockperiod
 
 	component avbrottshanterare is	-- Deklarerar en komponent
 		port(
-		   ret_addr : in STD_LOGIC_VECTOR(5 downto 0);
+		   ret_addr : in std_logic_vector(5 downto 0);
            int_done : in STD_LOGIC;
            clk : in STD_LOGIC;
            rst : in STD_LOGIC;
@@ -155,7 +154,7 @@ DUT_avbrottshanterare: avbrottshanterare	-- Instantierar en komponenent samt kop
 --                    D <= "00110000";
 --                    save_wreg <= '1';
                     
---                    wait for 2*clk_period;
+--                    wait for 2*clk+_period;
 --                    restore_wreg <= '1';
 --                    save_wreg <= '1';
                         
