@@ -35,8 +35,8 @@ entity avbrottshanterare is
     Port ( 
            ret_addr : in STD_LOGIC_VECTOR (5 downto 0);
            int_done : in STD_LOGIC;
-           clk : in STD_LOGIC;
-           rst : in STD_LOGIC;
+           clk : in STD_LOGIC;                              -- kommer utifrån
+           rst : in STD_LOGIC;                              -- kommer utifrån
            int0 : in STD_LOGIC;
            int_addr : out STD_LOGIC_VECTOR(5 downto 0);
            int_mux : out STD_LOGIC;
