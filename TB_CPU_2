@@ -21,7 +21,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
+use IEEE.NUMERIC_STD.ALL;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -46,7 +46,8 @@ component CPU is    -- deklaration
 			A 			: out std_logic_vector(5 downto 0);
 			OUTPUT 		: out std_logic_vector(7 downto 0);
 			OutEna 		: out std_logic;
-			pc_debug 	: out std_logic_vector(5 downto 0)
+			pc_debug 	: out std_logic_vector(5 downto 0);
+			int_source0 : in std_logic
 		);
 	end component;
 
@@ -62,11 +63,18 @@ component CPU is    -- deklaration
     signal INPUT	: std_logic_vector(7 downto 0);
 	signal OUTPUT 	: std_logic_vector(7 downto 0);
     signal OutEna 	: std_logic;
+    signal interrupt :std_logic;
     
     
     signal message : string(1 to 11) := "      RESET";
-    type opcode_arr is array (1 to 12) of string(1 to 4);
-    constant opcode_str : opcode_arr := ("CALL", " RET", "  BZ", "   B", " ADD", " SUB", " AND", "  LD", " OUT", "  IN", "  OR", " XOR");
+    type opcode_arr is array (1 to 13) of string(1 to 4);
+    constant opcode_str : opcode_arr := ("CALL", " RET", "  BZ", "   B", " ADD", " SUB", " AND", "  LD", " OUT", "  IN", "  OR", " XOR", " SRET");
+    constant OP_LD  : std_logic_vector(3 downto 0) := "0000";
+    constant OP_ADD : std_logic_vector(3 downto 0) := "0001";
+    constant OP_OUT : std_logic_vector(3 downto 0) := "0011";
+    constant OP_SRET : std_logic_vector(3 downto 0) := "1110";
+    
+    
     
     signal loop_cnt : integer range 0 to 4;
     signal sim_done : std_logic := '0';
@@ -120,7 +128,9 @@ begin
         A 		 => A,
         OUTPUT 	 => OUTPUT,
         OutEna 	 => OutEna,
-        pc_debug => PC
+        pc_debug => PC,
+        int_source0 => interrupt 
+        
     );
 	
 	I <= OPCODE & DEST & DATA;
@@ -182,6 +192,11 @@ begin
         wait until clk'event and clk='1';
         
         -- interrupt req
+       -- interrupt <= '1';
+       -- wait until rising_edge(clk);
+        interrupt <= '1';
+        wait for clk_period / 2;
+        
         
         --00 LD R0 1
         n_rst <= '1';
@@ -208,6 +223,18 @@ begin
         wait until clk'event and clk='1';
         
         -- post interrupt call
+        
+        OPCODE <= OP_SRET;
+        DEST <= '0';
+        DATA <= (others => '0'); 
+        message <= create_message(opcode_str(12), '0', 0);
+        wait for clk_period / 2;
+        --assert A = (others => '0') report "SRET: A should be zero" severity error;
+        assert (A = "000000") report "SRET: A should be zero" severity error;
+
+        assert OutEna = '0' report "SRET: OutEna should be '0'" severity error;
+        assert OUTPUT = "00000000" report "SRET: OUTPUT should be zero" severity error;
+        
         
         --03 OUT R1
         INPUT <= std_logic_vector(to_unsigned(0, 8));
