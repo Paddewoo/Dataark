@@ -134,5 +134,93 @@ begin
             wait;
         end if;
     end process;
+    
+     wave_gen:process
+       begin
+        -- System reset
+        n_rst <= '0';
+        OPCODE <= (others => '0');
+        DEST <= '0';
+        DATA <= (others => '0');
+        INPUT <= (others => '0');
+        wait until clk'event and clk='1';
+        wait until clk'event and clk='1';
+        wait until clk'event and clk='1';
+        
+        --00 LD R0 1
+        n_rst <= '1';
+        OPCODE <= OP_LD;
+        DEST <= '0';
+        DATA <= std_logic_vector(to_unsigned(4, 8));
+        message <= create_message(opcode_str(8),'0', 1);
+        wait for clk_period / 2;
+        assert A = std_logic_vector(to_unsigned(1, 6))         report "1. A = " & integer'image(to_integer(unsigned(A))) & ", ska vara 1!!" severity error;
+        assert OutEna = '0'                                 report "1. OutEna = " & std_logic'image(OutEna) & ", ska vara '0'!!" severity error;
+        assert OUTPUT = std_logic_vector(to_unsigned(1, 8)) report "1. OUTPUT = " & integer'image(to_integer(unsigned(OUTPUT))) & ", ska vara 1!!" severity error;
+        wait until clk'event and clk='1';
+        
+        --01 ADD R0 2
+        OPCODE <= OP_ADD;
+        DEST <= '0';
+        DATA <= std_logic_vector(to_unsigned(2, 8));
+        message <= create_message(opcode_str(5),'0', 2);
+        wait for clk_period / 2;
+        assert A = std_logic_vector(to_unsigned(2, 6))         report "2. A = " & integer'image(to_integer(unsigned(A))) & ", ska vara 2!!" severity error;
+        assert OutEna = '0'                                 report "2. OutEna = " & std_logic'image(OutEna) & ", ska vara '0'!!" severity error;
+        assert OUTPUT = std_logic_vector(to_unsigned(3, 8)) report "2. OUTPUT = " & integer'image(to_integer(unsigned(OUTPUT))) & ", ska vara 3!!" severity error;
+        wait until clk'event and clk='1';
+        
+        --01 ADD R0 2
+        OPCODE <= OP_ADD;
+        DEST <= '0';
+        DATA <= std_logic_vector(to_unsigned(2, 8));
+        message <= create_message(opcode_str(5),'0', 2);
+        wait for clk_period / 2;
+        assert A = std_logic_vector(to_unsigned(2, 6))         report "2. A = " & integer'image(to_integer(unsigned(A))) & ", ska vara 2!!" severity error;
+        assert OutEna = '0'                                 report "2. OutEna = " & std_logic'image(OutEna) & ", ska vara '0'!!" severity error;
+        assert OUTPUT = std_logic_vector(to_unsigned(3, 8)) report "2. OUTPUT = " & integer'image(to_integer(unsigned(OUTPUT))) & ", ska vara 3!!" severity error;
+        wait until clk'event and clk='1';
+        
+        -- interrupt req
+        
+        --00 LD R0 1
+        n_rst <= '1';
+        OPCODE <= OP_LD;
+        DEST <= '0';
+        DATA <= std_logic_vector(to_unsigned(4, 8));
+        message <= create_message(opcode_str(8),'0', 1);
+        wait for clk_period / 2;
+        assert A = std_logic_vector(to_unsigned(1, 6))         report "1. A = " & integer'image(to_integer(unsigned(A))) & ", ska vara 1!!" severity error;
+        assert OutEna = '0'                                 report "1. OutEna = " & std_logic'image(OutEna) & ", ska vara '0'!!" severity error;
+        assert OUTPUT = std_logic_vector(to_unsigned(1, 8)) report "1. OUTPUT = " & integer'image(to_integer(unsigned(OUTPUT))) & ", ska vara 1!!" severity error;
+        wait until clk'event and clk='1';
+        
+        --03 OUT R1
+        INPUT <= std_logic_vector(to_unsigned(0, 8));
+        OPCODE <= OP_OUT;
+        DEST <= '0';
+        DATA <= std_logic_vector(to_unsigned(0, 8));
+        message <= create_message(opcode_str(9),'1', -1);
+        wait for clk_period / 2;
+        assert A = std_logic_vector(to_unsigned(4, 6))         report "4. A = " & integer'image(to_integer(unsigned(A))) & ", ska vara 4!!" severity error;
+        assert OutEna = '1'                                 report "4. OutEna = " & std_logic'image(OutEna) & ", ska vara '1'!!" severity error;
+        assert OUTPUT = std_logic_vector(to_unsigned(4, 8)) report "4. OUTPUT = " & integer'image(to_integer(unsigned(OUTPUT))) & ", ska vara 4!!" severity error;
+        wait until clk'event and clk='1';
+        
+        -- post interrupt call
+        
+        --03 OUT R1
+        INPUT <= std_logic_vector(to_unsigned(0, 8));
+        OPCODE <= OP_OUT;
+        DEST <= '0';
+        DATA <= std_logic_vector(to_unsigned(0, 8));
+        message <= create_message(opcode_str(9),'1', -1);
+        wait for clk_period / 2;
+        assert A = std_logic_vector(to_unsigned(4, 6))         report "4. A = " & integer'image(to_integer(unsigned(A))) & ", ska vara 4!!" severity error;
+        assert OutEna = '1'                                 report "4. OutEna = " & std_logic'image(OutEna) & ", ska vara '1'!!" severity error;
+        assert OUTPUT = std_logic_vector(to_unsigned(4, 8)) report "4. OUTPUT = " & integer'image(to_integer(unsigned(OUTPUT))) & ", ska vara 4!!" severity error;
+        wait until clk'event and clk='1';
+  
+    end process;
 
 end Behavioral;
