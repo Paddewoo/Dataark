@@ -1,0 +1,37 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+
+entity avbrott_work_reg is
+	port(
+		clk   : in  std_logic;
+		ena   : in  std_logic;
+		n_rst : in  std_logic;
+		D 	  : in  std_logic_vector(5 downto 0);
+		Q 	  : out std_logic_vector(5 downto 0)
+	);
+end avbrott_work_reg;
+
+architecture Behavioral of avbrott_work_reg is
+
+begin
+
+	reg: process(clk)
+	begin
+		if rising_edge(clk) then
+		
+			if n_rst = '0' then
+			
+				Q <= (others => '0');
+			
+			elsif ena = '1' then 
+			
+				Q <= D;
+			
+			end if;
+			
+		end if;
+	end process;
+
+
+end Behavioral;
