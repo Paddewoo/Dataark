@@ -17,7 +17,7 @@ entity decoder is
         OutEna 	: out std_logic;
         RegEna 	: out std_logic;
         StackOp : out std_logic_vector(1 downto 0);
-        SRET    : out std_logic_vector(3 downto 0);
+        --SRET    : out std_logic_vector(3 downto 0);
         IntDone : out std_logic
     );
 end decoder;
