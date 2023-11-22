@@ -67,15 +67,15 @@ architecture Structural of CPU is
 	end component;
 	
 	--detta ska tas bort sen
-	component work_reg is
-	port(
-		clk   : in  std_logic;
-		ena   : in  std_logic;
-		n_rst : in  std_logic;
-		D 	  : in  std_logic_vector(7 downto 0);
-		Q 	  : out std_logic_vector(7 downto 0)
-	);
-	end component;
+--	component work_reg is
+--	port(
+--		clk   : in  std_logic;
+--		ena   : in  std_logic;
+--		n_rst : in  std_logic;
+--		D 	  : in  std_logic_vector(7 downto 0);
+--		Q 	  : out std_logic_vector(7 downto 0)
+--	);
+--	end component;
 	
 	--deklaration av work_reg_block
 	component work_reg_block is
@@ -99,7 +99,7 @@ architecture Structural of CPU is
         OutEna 	: out std_logic;
         RegEna 	: out std_logic;
         StackOp : out std_logic_vector(1 downto 0);
-        SRET    : out std_logic_vector(3 downto 0)
+        IntDone : out std_logic
     );
 	end component;
 	
@@ -300,7 +300,7 @@ begin
         OutEna 	=> s_OutEna,
         RegEna 	=> s_RegEna,
         StackOp => s_StackOp,
-        SRET    => s_SRET
+        IntDone  => s_int_done
     );
     
     avbrott: avbrottshanterare
