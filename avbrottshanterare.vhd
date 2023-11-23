@@ -46,65 +46,98 @@ end avbrottshanterare;
 
 architecture Behavioral of avbrottshanterare is
 
-type state_type is (Idle, Save, Restore);
-signal current_state, next_state : state_type;
+    type state_type is (Idle1, Save, Idle2, Restore);
+    signal current_state, next_state : state_type;
+
+    component avbrott_work_wreg is
+        port(
+            clk   : in  std_logic;
+            ena   : in  std_logic;
+            n_rst : in  std_logic;
+            D 	  : in  std_logic_vector(5 downto 0);
+            Q     : out std_logic_vector(5 downto 0)
+        );
+    end component;
+    
+    signal s_int_addr : std_logic_vector(5 downto 0);
+    signal s_ret_addr : std_logic_vector(5 downto 0);
+    signal s_save_ret_addr : std_logic := '0';
+    
 
 begin
-process(clk, rst)
-begin
-if(rst = '1') then 
-    current_state <= Idle;
-elsif(rising_edge(clk)) then 
-    current_state <= next_state;
-end if;
-end process;
-    
-process(current_state, int0, int_done)
-begin
-    case current_state is
-        when Idle =>
-            if((int0 = '1') and (int_done = '0')) then
-                next_state <= Save;
-            else
-                next_state <= Idle;
-          end if;
-         when Save =>
-            if((int0 = '0') and (int_done = '1')) then
+
+    with current_state select s_save_ret_addr <=
+        '1' when Save,
+        '0' when others;
+    s_ret_addr <= ret_addr;
+
+
+    R0: entity work.avbrott_work_reg
+    port map(
+        clk  => clk,
+        ena => s_save_ret_addr,
+        n_rst => rst,
+        D => ret_addr, 
+        Q => s_int_addr
+    );
+
+
+    process(clk, rst)
+    begin
+    if rising_edge(clk) then
+        if(rst = '0') then 
+              current_state <= Idle1;
+                  else
+                    current_state <= next_state;
+                       end if;
+    end if;
+    end process;
+      
+    process(current_state, int0, int_done)
+    begin
+       next_state <= Idle1;
+       case current_state is  
+       when Idle1 =>
+        if(int0 = '1')then
+            next_state <= Save;
+           end if;
+        when Save =>
+            next_state <= Idle2;
+        when Idle2 =>
+            if int_done = '1' then
                 next_state <= Restore;
-            else
-                next_state <= Save;
-        end if;
-        when Restore => 
-            if((int0 = '1') and (int_done = '0')) then
-                next_state <= Save;
-            elsif ((int0 = '1') and (int_done = '1')) then
-                next_state <= Restore;
-            else 
-                next_state <= Idle;
-            end if;
-          end case;
-  end process;
-  
-  process(current_state)
-  begin
-    case current_state is
-        when Idle => 
-            int_addr <= "------"; 
-            save_wreg <= '0';
-            restore_wreg <= '0';
-            int_mux <= '0';
-        when Save => 
-            int_addr <= "001111";
-            save_wreg <= '1';
-            restore_wreg <= '0';
-            int_mux <= '0';
-        when Restore =>
-            int_addr <= "100111"; -- ret adress
-            save_wreg <= '0';
-            restore_wreg <= '1';
-            int_mux <= '1';
-    end case;
-end process;
+                end if;
+            when Restore =>
+                next_state <= idle1;
+            end case;
+
+      end process;
+      
+      process(current_state,int0, int_done)
+      begin
+        case current_state is
+            when Idle1 => 
+                int_addr <= "------"; 
+                save_wreg <= '0';
+                restore_wreg <= '0';
+                int_mux <= '0';
+            when Save => 
+            --  int_addr <= INTERRUPT_ADDRESS;
+                int_addr <= "001111";
+                save_wreg <= '1';
+                restore_wreg <= '0';
+                int_mux <= '1';
+            when Idle2 =>
+                int_addr <= "------";
+                save_wreg <= '0';
+                int_mux <= '0';
+            when Restore =>
+                int_addr <= s_int_addr; -- ret adress "100111"
+                save_wreg <= '0';
+                restore_wreg <= '1';
+                int_mux <= '1';
+        end case;
+    end process;
         
 --end Behavioral;
   end architecture;  
