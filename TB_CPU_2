@@ -67,8 +67,10 @@ component CPU is    -- deklaration
     
     
     signal message : string(1 to 11) := "      RESET";
-    type opcode_arr is array (1 to 13) of string(1 to 4);
-    constant opcode_str : opcode_arr := ("CALL", " RET", "  BZ", "   B", " ADD", " SUB", " AND", "  LD", " OUT", "  IN", "  OR", " XOR", " SRET");
+    type opcode_arr is array (natural range <>) of string(1 to 4);
+    constant opcode_str : opcode_arr := ("CALL", " RET", "  BZ", "   B", " ADD", " SUB", " AND", "  LD", " OUT", "  IN", "  OR", " XOR", "SRET");
+
+    
     constant OP_LD  : std_logic_vector(3 downto 0) := "0000";
     constant OP_ADD : std_logic_vector(3 downto 0) := "0001";
     constant OP_OUT : std_logic_vector(3 downto 0) := "0011";
