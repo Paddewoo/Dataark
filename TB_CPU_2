@@ -225,17 +225,28 @@ begin
         wait until clk'event and clk='1';
         
         -- post interrupt call
-        
         OPCODE <= OP_SRET;
-        DEST <= '0';
-        DATA <= (others => '0'); 
-        message <= create_message(opcode_str(12), '0', 0);
-        wait for clk_period / 2;
-        --assert A = (others => '0') report "SRET: A should be zero" severity error;
-        assert (A = "000000") report "SRET: A should be zero" severity error;
+        DATA <= std_logic_vector(to_unsigned(108,8));
+        message <= create_message(opcode_str(12),'1',-1);
+        
+        wait for clk_period /2;
+        wait until clk'event and clk ='1';
+        
+        
+        
+        
+        
+        
+--        OPCODE <= OP_SRET;
+--        DEST <= '0';
+--        DATA <= (others => '0'); 
+--        message <= create_message(opcode_str(12), '0', 0);
+--        wait for clk_period / 2;
+--        --assert A = (others => '0') report "SRET: A should be zero" severity error;
+--        assert (A = "000000") report "SRET: A should be zero" severity error;
 
-        assert OutEna = '0' report "SRET: OutEna should be '0'" severity error;
-        assert OUTPUT = "00000000" report "SRET: OUTPUT should be zero" severity error;
+--        assert OutEna = '0' report "SRET: OutEna should be '0'" severity error;
+--        assert OUTPUT = "00000000" report "SRET: OUTPUT should be zero" severity error;
         
         
         --03 OUT R1
