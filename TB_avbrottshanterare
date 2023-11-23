@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date: 11/20/2023 12:19:21 PM
+-- Create Date: 11/20/2023 02:19:14 PM
 -- Design Name: 
--- Module Name: avbrottshanterare - Behavioral
+-- Module Name: TB_avbrottshanterare - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -31,118 +31,140 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity avbrottshanterare is
-    Port ( 
-           ret_addr : in STD_LOGIC_VECTOR (5 downto 0);
+entity TB_avbrottshanterare is
+--  Port ( );
+end TB_avbrottshanterare;
+
+Architecture Behavioral of TB_avbrottshanterare is
+
+    signal sim_done 	: std_logic := '0'; 		-- Signal fÃ¶r att avsluta simuleringen
+    signal rst		: std_logic := '0';
+	signal clk 			: std_logic := '0'; 		-- Klocksignal initieras till 0, det Ã¤r viktigt! Se rad 47!
+	signal save_wreg : std_logic := '0';
+	signal restore_wreg : std_logic := '0'; --1 ändrat från 1
+	signal int_addr :  std_logic_vector(5 downto 0)  --:= "000000";
+	signal ret_addr : std_logic_vector(5 downto 0) --:= "000000";
+	signal int0 	 		: std_logic := '0'; 
+	signal int_done 			: std_logic := '0'; 
+	signal int_mux : std_logic := '0'; --1 ändrat från 1
+	
+	
+	constant clk_period : time := 10 ns;			-- konstant signal fÃ¶r en klockperiod
+
+	component avbrottshanterare is	-- Deklarerar en komponent
+		port(
+		   ret_addr : in std_logic_vector(5 downto 0);
            int_done : in STD_LOGIC;
-           clk : in STD_LOGIC;                              -- kommer utifrån
-           rst : in STD_LOGIC;                              -- kommer utifrån
+           clk : in STD_LOGIC;
+           rst : in STD_LOGIC;
            int0 : in STD_LOGIC;
            int_addr : out STD_LOGIC_VECTOR(5 downto 0);
            int_mux : out STD_LOGIC;
            save_wreg : out STD_LOGIC;
-           restore_wreg : out STD_LOGIC );
-end avbrottshanterare;
-
-architecture Behavioral of avbrottshanterare is
-
-    type state_type is (Idle1, Save, Idle2, Restore);
-    signal current_state, next_state : state_type;
-
-    component avbrott_work_wreg is
-        port(
-            clk   : in  std_logic;
-            ena   : in  std_logic;
-            n_rst : in  std_logic;
-            D 	  : in  std_logic_vector(5 downto 0);
-            Q     : out std_logic_vector(5 downto 0)
-        );
-    end component;
-    
-    signal s_int_addr : std_logic_vector(5 downto 0);
-    signal s_ret_addr : std_logic_vector(5 downto 0);
-    signal s_save_ret_addr : std_logic := '0';
-    
-
+           restore_wreg : out STD_LOGIC
+		);
+	end component;
+	
 begin
 
-    with current_state select s_save_ret_addr <=
-        '1' when Save,
-        '0' when others;
-    s_ret_addr <= ret_addr;
-
-
-    R0: entity work.avbrott_work_reg
-    port map(
-        clk  => clk,
-        ena => s_save_ret_addr,
-        n_rst => rst,
-        D => ret_addr, 
-        Q => s_int_addr
-    );
-
-
-    process(clk, rst)
-    begin
-    if(rst = '1') then 
-        current_state <= Idle1;
-    elsif(rising_edge(clk)) then 
-        current_state <= next_state;
-    end if;
-    end process;
-      
-    process(current_state, int0, int_done)
-    begin
-        case current_state is
-            when Idle1 =>
-                if((int0 = '1') and (int_done = '0')) then
-                    next_state <= Save;
+DUT_avbrottshanterare: avbrottshanterare	-- Instantierar en komponenent samt kopplar 
+	port map(
+            ret_addr => ret_addr,
+            int_done => int_done,
+            clk => clk,
+            rst => rst,
+            int0 => int0,
+            int_addr => int_addr,
+            int_mux => int_mux,
+            save_wreg => save_wreg,
+            restore_wreg => restore_wreg 
+            
+            );
+            
+clk_gen: process		-- Process fÃ¶r att generera en klocksignal
+            begin
+                    
+                if sim_done = '0' then                 -- Kolla pÃ¥ rad 80. DÃ¤r sÃ¤tts sim_done till 1. Sedan skrivs en kommentar ut i
+                    wait for clk_period / 2;         -- terminalfÃ¶nstert, efter det kommer kommandot wait. DÃ¤r slutar simuleringen!        
+                    clk <= not clk;            -- Om klocksignalen inte hade varit initierad hade det uppstÃ¥t problem hÃ¤r
                 else
-                    next_state <= Idle1;
-              end if;
-             when Save =>
-    --            if((int0 = '0') and (int_done = '1')) then
-    --                next_state <= Restore;
-    --            else
-                    --next_state <= Save;
-                    next_state <= Idle2;
-            --end if;
-            when Restore => 
-    --            if((int0 = '1') and (int_done = '0')) then
-    --                next_state <= Save;
-    --            elsif ((int0 = '1') and (int_done = '1')) then
-    --                next_state <= Restore;
-    --            else 
-                    next_state <= Idle1;
-                --end if;
-              end case;
-      end process;
-      
-      process(current_state)
-      begin
-        case current_state is
-            when Idle1 => 
-                int_addr <= "------"; 
-                save_wreg <= '0';
-                restore_wreg <= '0';
-                int_mux <= '0';
-            when Save => 
-                int_addr <= "001111";
-                save_wreg <= '1';
-                restore_wreg <= '0';
-                int_mux <= '1';
-            when Idle2 =>
-                int_addr <= "------";
-                save_wreg <= '0';
-                int_mux <= '0';
-            when Restore =>
-                int_addr <= s_int_addr; -- ret adress "100111"
-                save_wreg <= '0';
-                restore_wreg <= '1';
-                int_mux <= '1';
-        end case;
-    end process;
-        
---end Behavioral;
-  end architecture;  
-    
+                    wait;
+                end if;
+            
+            end process;
+                
+DUT_stimuli: process	-- Process som skapar simuleringssignaler. 
+                begin
+                
+                rst <= '0';
+                wait for clk_period;
+                rst <= '1';
+                
+                ret_addr <= "100111";  -- lägger in en returaddress    -- 100111
+               
+                wait for clk_period; 
+                
+                -- Scenario 0 Idle, inget avbrott sker
+                int0 <= '1';
+                int_done <= '1';
+                ret_addr <= "100111";
+                
+                int0 <= '0';
+                wait for clk_period;
+                
+                -- Scenario 1 Save, spara 
+                int0 <= '1';
+                int_done <= '0';
+                ret_addr <= "001111";
+                
+                wait for clk_period;
+                
+                -- Scenario 2 Restore, kör avbrott - efter return till Idle
+                int0 <= '1';
+                int_done <= '0';
+                ret_addr <= "001111";
+                
+                wait for clk_period;
+                int0 <= '0';
+                int_done <= '1';
+                ret_addr <= "100111";
+               
+                wait for clk_period;
+                wait for clk_period;
+                wait for clk_period;
+                wait for clk_period;
+                wait for clk_period;
+                wait for clk_period;
+                
+                
+--                    wait for 2*clk_period;
+                    
+--                    D <= "10111101";
+                
+--                    wait for 2*clk_period;
+                    
+--                    ena      <= '0';
+--                    D <= "10100101";
+                
+--                    wait for 2*clk_period;
+                    
+--                    rst <= '0';
+                
+--                    wait for 2*clk_period;
+                
+--                    wait for 2*clk_period;
+--                    D <= "00110000";
+--                    save_wreg <= '1';
+                
+--                    wait for 2*clk+_period;
+--                    restore_wreg <= '1';
+--                    save_wreg <= '1';
+                    
+--                    wait for 2*clk_period;
+                    
+                sim_done <= '1';
+                report "Simulation done! :)" severity note;
+                wait;
+                end process;
+
+end Behavioral;
