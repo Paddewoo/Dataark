@@ -46,7 +46,7 @@ begin
 
 with sel select output <=
 		input0 		when '0',
-		input1 		when others;
+		input1 		when others;   -- i andra input1 when '1';
 
 
 
