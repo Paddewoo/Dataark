@@ -67,15 +67,15 @@ architecture Structural of CPU is
 	end component;
 	
 	--detta ska tas bort sen
---	component work_reg is
---	port(
---		clk   : in  std_logic;
---		ena   : in  std_logic;
---		n_rst : in  std_logic;
---		D 	  : in  std_logic_vector(7 downto 0);
---		Q 	  : out std_logic_vector(7 downto 0)
---	);
---	end component;
+	component work_reg is
+	port(
+		clk   : in  std_logic;
+		ena   : in  std_logic;
+		n_rst : in  std_logic;
+		D 	  : in  std_logic_vector(7 downto 0);
+		Q 	  : out std_logic_vector(7 downto 0)
+	);
+	end component;
 	
 	--deklaration av work_reg_block
 	component work_reg_block is
@@ -133,6 +133,16 @@ architecture Structural of CPU is
        int_mux : out std_logic;
        save_wreg : out std_logic;
        restore_wreg : out std_logic 
+    );
+    end component;
+    
+    component avbrott_work_wreg is
+    port(
+        clk   : in  std_logic;
+        ena   : in  std_logic;
+        n_rst : in  std_logic;
+        D       : in  std_logic_vector(5 downto 0);
+        Q       : out std_logic_vector(5 downto 0)
     );
     end component;
 	
