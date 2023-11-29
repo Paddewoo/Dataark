@@ -87,15 +87,15 @@ begin
     if rising_edge(clk) then
         if(rst = '0') then 
               current_state <= Idle1;
-                  else
-                    current_state <= next_state;
-                       end if;
+        else
+              current_state <= next_state;
+       end if;
     end if;
     end process;
       
     process(current_state, int0, int_done)
     begin
-       next_state <= Idle1;
+       next_state <= current_state;     -- Idle1
        case current_state is  
        when Idle1 =>
         if(int0 = '1')then
@@ -108,9 +108,8 @@ begin
                 next_state <= Restore;
                 end if;
             when Restore =>
-                next_state <= idle1;
+                next_state <= Idle1;
             end case;
-
       end process;
       
       process(current_state,int0, int_done)
@@ -130,6 +129,7 @@ begin
             when Idle2 =>
                 int_addr <= "------";
                 save_wreg <= '0';
+                restore_wreg <= '0';
                 int_mux <= '0';
             when Restore =>
                 int_addr <= s_int_addr; -- ret adress "100111"
