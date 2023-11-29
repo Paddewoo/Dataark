@@ -9,6 +9,8 @@ package CPU_pkg is
 
 	procedure vector_to_string(	signal vector  : in  std_logic_vector; 
 								signal str : out string);
+								
+    constant INTERRUPT_ADDRESS : std_logic_vector(5 downto 0) := "001111";
 
     -- Stackkommando
     constant POP          : std_logic_vector(1 downto 0) := "10";
