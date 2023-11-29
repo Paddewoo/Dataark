@@ -22,6 +22,9 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
+library work;
+use work.CPU_pkg.all;
+
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -82,7 +85,7 @@ begin
     );
 
 
-    process(clk, rst)
+    process(clk)
     begin
     if rising_edge(clk) then
         if(rst = '0') then 
@@ -121,8 +124,8 @@ begin
                 restore_wreg <= '0';
                 int_mux <= '0';
             when Save => 
-            --  int_addr <= INTERRUPT_ADDRESS;
-                int_addr <= "001111";
+              int_addr <= INTERRUPT_ADDRESS;
+                --int_addr <= "001111";
                 save_wreg <= '1';
                 restore_wreg <= '0';
                 int_mux <= '1';
